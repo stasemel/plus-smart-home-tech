@@ -4,8 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TelemetryApplication {
+public class CollectorApplication {
     public static void main(String[] args) {
-        SpringApplication.run(TelemetryApplication.class, args);
+        SpringApplication.run(CollectorApplication.class, args);
     }
 }

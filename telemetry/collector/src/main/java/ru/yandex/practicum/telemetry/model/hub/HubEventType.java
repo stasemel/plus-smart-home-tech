@@ -1,4 +1,4 @@
-package ru.yandex.practicum.telemetry.hub;
+package ru.yandex.practicum.telemetry.model.hub;
 
 public enum HubEventType {
     DEVICE_ADDED,

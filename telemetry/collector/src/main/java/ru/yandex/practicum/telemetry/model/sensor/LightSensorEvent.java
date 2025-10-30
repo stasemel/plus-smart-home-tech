@@ -1,5 +1,6 @@
-package ru.yandex.practicum.telemetry.sensor;
+package ru.yandex.practicum.telemetry.model.sensor;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,10 +15,13 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LightSensorEvent extends SensorEvent {
+    ///Качество связи.
     private int linkQuality;
+    ///Уровень освещенности.
     private int luminosity;
 
     @Override
+    @NotNull
     public SensorEventType getType() {
         return SensorEventType.LIGHT_SENSOR_EVENT;
     }

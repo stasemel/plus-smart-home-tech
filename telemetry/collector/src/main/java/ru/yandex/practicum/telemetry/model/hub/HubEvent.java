@@ -1,14 +1,16 @@
-package ru.yandex.practicum.telemetry.hub;
+package ru.yandex.practicum.telemetry.model.hub;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import ru.yandex.practicum.telemetry.hub.device.DeviceAddedEvent;
-import ru.yandex.practicum.telemetry.hub.device.DeviceRemovedEvent;
-import ru.yandex.practicum.telemetry.hub.scenario.ScenarioAddedEvent;
-import ru.yandex.practicum.telemetry.hub.scenario.ScenarioRemovedEvent;
+import ru.yandex.practicum.telemetry.model.hub.device.DeviceAddedEvent;
+import ru.yandex.practicum.telemetry.model.hub.device.DeviceRemovedEvent;
+import ru.yandex.practicum.telemetry.model.hub.scenario.ScenarioAddedEvent;
+import ru.yandex.practicum.telemetry.model.hub.scenario.ScenarioRemovedEvent;
 
 import java.time.Instant;
 
@@ -16,7 +18,7 @@ import java.time.Instant;
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.EXISTING_PROPERTY,
         property = "type",
-        defaultImpl = HubEvent.class
+        defaultImpl = ErrorHubEvent.class
 )
 @JsonSubTypes({
         @JsonSubTypes.Type(value = DeviceAddedEvent.class, name = "DEVICE_ADDED"),
@@ -28,9 +30,11 @@ import java.time.Instant;
 @Setter
 @ToString
 public abstract class HubEvent {
+    @NotBlank
     private String hubId;
     private Instant timestamp = Instant.now();
 
     // абстрактный метод, который должен быть определён в конкретных реализациях
+    @NotNull
     public abstract HubEventType getType();
 }

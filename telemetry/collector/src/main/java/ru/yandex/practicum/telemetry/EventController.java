@@ -8,15 +8,15 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ru.yandex.practicum.telemetry.hub.HubEvent;
-import ru.yandex.practicum.telemetry.sensor.SensorEvent;
+import ru.yandex.practicum.telemetry.model.hub.HubEvent;
+import ru.yandex.practicum.telemetry.model.sensor.SensorEvent;
 
 @Controller
 @RequestMapping(path = "/events")
 @RequiredArgsConstructor
 @Slf4j
 @Validated
-public class CollectorController {
+public class EventController {
     @PostMapping(path = "/hubs")
     public void collectHubEvent(@Valid @RequestBody HubEvent hubEvent) {
         log.info("Device add request. type = {}, hubId = {}", hubEvent.getType(),
