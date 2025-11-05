@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.telemetry.model.hub.device.DeviceAddedEvent;
 import ru.yandex.practicum.telemetry.model.hub.device.DeviceRemovedEvent;
 import ru.yandex.practicum.telemetry.model.hub.scenario.ScenarioAddedEvent;
@@ -29,10 +31,11 @@ import java.time.Instant;
 @Getter
 @Setter
 @ToString
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
 public abstract class HubEvent {
     @NotBlank
-    private String hubId;
-    private Instant timestamp = Instant.now();
+    String hubId;
+    Instant timestamp = Instant.now();
 
     // абстрактный метод, который должен быть определён в конкретных реализациях
     @NotNull

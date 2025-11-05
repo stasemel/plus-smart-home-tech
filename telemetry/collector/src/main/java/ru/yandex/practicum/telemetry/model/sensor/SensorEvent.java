@@ -4,9 +4,13 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
 
@@ -26,15 +30,18 @@ import java.time.Instant;
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
 public abstract class SensorEvent {
     ///Идентификатор события датчика.
     @NotBlank
-    private String id;
+    String id;
     ///Идентификатор хаба, связанного с событием.
     @NotBlank
-    private String hubId;
+    String hubId;
     ///Временная метка события. По умолчанию устанавливается текущее время.
-    private Instant timestamp = Instant.now();
+    Instant timestamp = Instant.now();
 
     // абстрактный метод, который должен быть определён в конкретных реализациях
     @NotNull
