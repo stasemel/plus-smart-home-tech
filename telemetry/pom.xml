@@ -16,5 +16,27 @@
         <module>serialization</module>
         <module>collector</module>
     </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+            <version>1.11.3</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro-maven-plugin</artifactId>
+                <!-- настройки будут скопированы из блока pluginManagement в родительском pom  -->
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <!-- настройки будут скопированы из блока pluginManagement в родительском pom  -->
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
