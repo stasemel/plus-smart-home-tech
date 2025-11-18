@@ -10,7 +10,7 @@ import ru.yandex.practicum.telemetry.service.KafkaEventProducer;
 import java.time.Instant;
 
 @Getter
-public abstract class BaseSensorEventHandler<T extends SpecificRecordBase> implements SensorEventHandler {
+public abstract class BaseSensorEventHandler implements SensorEventHandler {
     private final KafkaEventProducer producer;
     private final String topic = "telemetry.sensors.v1";
 
@@ -19,7 +19,7 @@ public abstract class BaseSensorEventHandler<T extends SpecificRecordBase> imple
         this.producer = producer;
     }
 
-    protected abstract T mapToAvro(SensorEventProto sensorEvent);
+    protected abstract SpecificRecordBase mapToAvro(SensorEventProto sensorEvent);
 
     @Override
     public void handle(SensorEventProto sensorEvent) {
@@ -27,7 +27,10 @@ public abstract class BaseSensorEventHandler<T extends SpecificRecordBase> imple
                 .setHubId(sensorEvent.getHubId())
                 .setId(sensorEvent.getId())
                 .setPayload(mapToAvro(sensorEvent))
-                .setTimestamp(Instant.parse(sensorEvent.getTimestamp().toString()))
+                .setTimestamp(
+                        Instant.ofEpochSecond(sensorEvent.getTimestamp().getSeconds(),
+                                sensorEvent.getTimestamp().getNanos())
+                )
                 .build();
         ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(getTopic(), sensorEventAvro);
         producer.getProducer().send(record);

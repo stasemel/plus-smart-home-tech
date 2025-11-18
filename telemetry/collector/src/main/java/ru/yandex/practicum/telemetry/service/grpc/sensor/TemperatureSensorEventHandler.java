@@ -21,7 +21,10 @@ public class TemperatureSensorEventHandler extends BaseSensorEventHandler {
         return TemperatureSensorAvro.newBuilder()
                 .setTemperatureC(event.getTemperatureC())
                 .setTemperatureF(event.getTemperatureF())
-                .setTimestamp(Instant.parse(sensorEvent.getTimestamp().toString()))
+                .setTimestamp(
+                        Instant.ofEpochSecond(sensorEvent.getTimestamp().getSeconds(),
+                                sensorEvent.getTimestamp().getNanos())
+                )
                 .setHubId(sensorEvent.getHubId())
                 .setId(sensorEvent.getId())
                 .build();

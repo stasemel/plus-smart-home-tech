@@ -32,6 +32,7 @@ public class EventControllerGrpc extends CollectorControllerGrpc.CollectorContro
 
     @Override
     public void collectSensorEvent(SensorEventProto request, StreamObserver<Empty> responseObserver) {
+        log.info("Collect sensor event {}", request);
         try {
             // проверяем, есть ли обработчик для полученного события
             if (sensorEventHandlers.containsKey(request.getPayloadCase())) {
@@ -53,6 +54,7 @@ public class EventControllerGrpc extends CollectorControllerGrpc.CollectorContro
 
     @Override
     public void collectHubEvent(HubEventProto request, StreamObserver<Empty> responseObserver) {
+        log.info("Collect hub event {}", request);
         try {
             // проверяем, есть ли обработчик для полученного события
             if (hubEventHandlers.containsKey(request.getPayloadCase())) {
