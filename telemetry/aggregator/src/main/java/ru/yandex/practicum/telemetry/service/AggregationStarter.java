@@ -47,6 +47,11 @@ public class AggregationStarter {
                     manageOffsets(record, count, kafkaEventConsumer);
                     count++;
                 }
+                consumer.commitAsync(currentOffsets, (offsets, exception) -> {
+                    if (exception != null) {
+                        log.warn("Ошибка во время фиксации оффсетов: {}", offsets, exception);
+                    }
+                });
             }
         } catch (WakeupException ignored) {
             log.info("Received WakeupException");
