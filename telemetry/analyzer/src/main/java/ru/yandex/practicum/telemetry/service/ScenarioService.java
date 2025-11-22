@@ -68,6 +68,7 @@ public class ScenarioService {
             scenario.addCondition(eventCondition.getSensorId(), condition);
         }
     }
+
     private Integer mapValue(Object value) {
         if (value != null) {
             if (value instanceof Integer i) return i;
