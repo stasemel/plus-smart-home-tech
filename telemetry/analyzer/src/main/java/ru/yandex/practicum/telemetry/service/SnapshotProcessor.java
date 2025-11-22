@@ -21,6 +21,7 @@ import java.util.Map;
 @Component
 public class SnapshotProcessor {
     private final KafkaSnapshotConsumer kafkaSnapshotConsumer;
+    private final SnapshotService snapshotService;
     private static final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(1000);
     private static final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
 
@@ -36,7 +37,7 @@ public class SnapshotProcessor {
                 if (records.isEmpty()) continue;
                 int count = 0;
                 for (ConsumerRecord<String, SensorsSnapshotAvro> record : records) {
-                    handleRecord(record);
+                    processSnapshot(record.value());
                     manageOffsets(record, count, kafkaSnapshotConsumer);
                     count++;
                 }
@@ -48,6 +49,8 @@ public class SnapshotProcessor {
             }
         } catch (WakeupException ignored) {
             log.info("Received WakeupException");
+        } catch (RuntimeException e) {
+            log.error("Error {}", e);
         } finally {
             try {
                 kafkaSnapshotConsumer.getConsumer().commitSync(currentOffsets);
@@ -74,7 +77,7 @@ public class SnapshotProcessor {
         }
     }
 
-    private void handleRecord(ConsumerRecord<String, SensorsSnapshotAvro> record) {
-
+    private void processSnapshot(SensorsSnapshotAvro snapshotAvro) {
+        snapshotService.analyze(snapshotAvro);
     }
 }

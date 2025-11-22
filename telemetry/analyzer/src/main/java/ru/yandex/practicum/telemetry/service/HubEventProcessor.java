@@ -55,6 +55,8 @@ public class HubEventProcessor implements Runnable {
             }
         } catch (WakeupException ignored) {
             log.info("Received WakeupException");
+        } catch (RuntimeException e) {
+            log.error("Error {}", e);
         } finally {
             try {
                 kafkaHubEventConsumer.getConsumer().commitSync(currentOffsets);

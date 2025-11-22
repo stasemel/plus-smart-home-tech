@@ -29,4 +29,13 @@ public class Condition {
     private ConditionOperationAvro operation;
 
     private Integer value;
+
+    public boolean check(int sensorValue) {
+        return switch (operation) {
+            case EQUALS -> (value == sensorValue);
+            case LOWER_THAN -> value < sensorValue;
+            case GREATER_THAN -> value > sensorValue;
+            default -> false;
+        };
+    }
 }
