@@ -55,7 +55,13 @@ public class ScenarioService {
         addConditionsToScenario(scenario, scenarioAddedEventAvro.getConditions());
         actionRepository.saveAll(scenario.getActions().values());
         conditionRepository.saveAll(scenario.getConditions().values());
-        return scenarioRepository.save(scenario);
+        Scenario savedScenario = scenarioRepository.save(scenario);
+        log.info("Save scenario id = {}, name = {}, hub = {}, actions size: {}",
+                savedScenario.getId(),
+                savedScenario.getName(),
+                savedScenario.getHubId(),
+                savedScenario.getActions().size());
+        return savedScenario;
 
     }
 

@@ -1,6 +1,5 @@
 package ru.yandex.practicum.telemetry.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -22,13 +21,13 @@ import java.util.Map;
 public class SnapshotProcessor {
     private final KafkaSnapshotConsumer kafkaSnapshotConsumer;
     private final SnapshotService snapshotService;
-    private static final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(1000);
+    private static final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(2000);
     private static final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
 
     @Autowired
     public SnapshotProcessor(SnapshotService snapshotService, KafkaSnapshotConsumer kafkaSnapshotConsumer) {
         this.snapshotService = snapshotService;
-        this.kafkaSnapshotConsumer=kafkaSnapshotConsumer;
+        this.kafkaSnapshotConsumer = kafkaSnapshotConsumer;
     }
 
     public void start() throws Exception {

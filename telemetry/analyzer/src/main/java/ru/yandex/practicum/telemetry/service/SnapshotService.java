@@ -84,12 +84,14 @@ public class SnapshotService {
     }
 
     private boolean checkClimateCondition(Condition condition, ClimateSensorAvro data) {
-        return switch (condition.getType()) {
+        boolean result = switch (condition.getType()) {
             case TEMPERATURE -> condition.check(data.getTemperatureC());
             case CO2LEVEL -> condition.check(data.getCo2Level());
             case HUMIDITY -> condition.check(data.getHumidity());
             default -> false;
         };
+        log.info("check climate condition {}, {}", condition, data);
+        return result;
     }
 
     private boolean checkLightCondition(Condition condition, LightSensorAvro data) {
@@ -118,21 +120,17 @@ public class SnapshotService {
 
     private void executeAction(Action action, String sensorId, Scenario scenario, Timestamp timestamp) {
         try {
-            log.debug("executeAction 0 !!!!!! {} sensorId {} scenario {} timestamp {}", action, sensorId, scenario, timestamp);
-            var deviceAction = buildDeviceAction(action, sensorId);
-            log.debug("executeAction 1 !!!!!! deviceAction = {}", deviceAction);
+            DeviceActionProto deviceAction = buildDeviceAction(action, sensorId);
             var request = DeviceActionRequest.newBuilder()
                     .setHubId(scenario.getHubId())
                     .setScenarioName(scenario.getName())
                     .setAction(deviceAction)
                     .setTimestamp(timestamp)
                     .build();
-            log.debug("executeAction 2 !!!!!! request {}", request);
             hubRouterClient.handleDeviceAction(request);
-            log.debug("executeAction 3 !!!!!! done");
         } catch (Exception e) {
-            log.error("executeAction action {}, sensorId {}, hub {}"
-                    , action.getType(), sensorId, scenario.getHubId(), e);
+            log.error("executeAction error action {}, sensorId {}, scenario id = {}, hub = {}, name={}, actions size = {}"
+                    , action.getType(), sensorId, scenario.getId(), scenario.getName(), scenario.getActions().size(), e);
         }
     }
 
