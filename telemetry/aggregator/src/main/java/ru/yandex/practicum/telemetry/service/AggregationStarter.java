@@ -55,6 +55,8 @@ public class AggregationStarter {
             }
         } catch (WakeupException ignored) {
             log.info("Received WakeupException");
+        } catch (RuntimeException e) {
+            log.error("Error {}", e);
         } finally {
             try {
                 kafkaSnapshotProducer.getProducer().flush();
