@@ -7,22 +7,25 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.kafka.telemetry.event.ActionTypeAvro;
 
 @Entity
 @Getter
 @Setter
 @Table(name = "actions")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Action {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @Enumerated(EnumType.STRING)
-    private ActionTypeAvro type;
+    ActionTypeAvro type;
 
-    private Integer value;
+    Integer value;
 }
