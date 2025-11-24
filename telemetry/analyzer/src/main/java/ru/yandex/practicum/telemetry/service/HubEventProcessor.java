@@ -33,7 +33,7 @@ public class HubEventProcessor implements Runnable {
     @Override
     public void run() {
         KafkaConsumer<String, HubEventAvro> consumer = kafkaHubEventConsumer.getConsumer();
-        String topic = kafkaHubEventConsumer.getKafkaConfig().getSnapshotsTopic();
+        String topic = kafkaHubEventConsumer.getKafkaConfig().getHubsEventTopic();
         Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
         try {
             log.info("Subscribe to topic: {} ", topic);

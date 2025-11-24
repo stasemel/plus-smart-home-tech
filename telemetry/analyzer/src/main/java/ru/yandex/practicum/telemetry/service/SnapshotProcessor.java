@@ -8,6 +8,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 
@@ -17,13 +18,18 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@RequiredArgsConstructor
 @Component
 public class SnapshotProcessor {
     private final KafkaSnapshotConsumer kafkaSnapshotConsumer;
     private final SnapshotService snapshotService;
     private static final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(1000);
     private static final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
+
+    @Autowired
+    public SnapshotProcessor(SnapshotService snapshotService, KafkaSnapshotConsumer kafkaSnapshotConsumer) {
+        this.snapshotService = snapshotService;
+        this.kafkaSnapshotConsumer=kafkaSnapshotConsumer;
+    }
 
     public void start() throws Exception {
         KafkaConsumer<String, SensorsSnapshotAvro> consumer = kafkaSnapshotConsumer.getConsumer();

@@ -58,15 +58,21 @@ public class SnapshotService {
     }
 
     private boolean checkAllConditions(Map<String, Condition> conditions, SensorsSnapshotAvro snapshotAvro) {
-        return conditions.entrySet().stream().anyMatch(entry -> checkCondition(entry.getKey(), entry.getValue(), snapshotAvro));
+        return conditions.entrySet().
+                stream().
+                allMatch(entry -> checkCondition(entry.getKey(), entry.getValue(), snapshotAvro));
     }
 
     private boolean checkCondition(String sensorId, Condition condition, SensorsSnapshotAvro snapshotAvro) {
         SensorStateAvro sensorStateAvro = snapshotAvro.getSensorsState().get(sensorId);
+        if (sensorStateAvro == null) {
+            return false;
+        }
         return checkSensorCondition(condition, sensorStateAvro.getData());
     }
 
     private boolean checkSensorCondition(Condition condition, Object stateData) {
+        if ((condition == null) || (stateData == null)) return false;
         return switch (stateData) {
             case ClimateSensorAvro data -> checkClimateCondition(condition, data);
             case LightSensorAvro data -> checkLightCondition(condition, data);
@@ -112,17 +118,20 @@ public class SnapshotService {
 
     private void executeAction(Action action, String sensorId, Scenario scenario, Timestamp timestamp) {
         try {
+            log.debug("executeAction 0 !!!!!! {} sensorId {} scenario {} timestamp {}", action, sensorId, scenario, timestamp);
             var deviceAction = buildDeviceAction(action, sensorId);
+            log.debug("executeAction 1 !!!!!! deviceAction = {}", deviceAction);
             var request = DeviceActionRequest.newBuilder()
                     .setHubId(scenario.getHubId())
                     .setScenarioName(scenario.getName())
                     .setAction(deviceAction)
                     .setTimestamp(timestamp)
                     .build();
-
+            log.debug("executeAction 2 !!!!!! request {}", request);
             hubRouterClient.handleDeviceAction(request);
+            log.debug("executeAction 3 !!!!!! done");
         } catch (Exception e) {
-            log.error("[SnapshotAnalyser][executeAction ERR] действие: {}; устройство: {}; хаб: {}"
+            log.error("executeAction action {}, sensorId {}, hub {}"
                     , action.getType(), sensorId, scenario.getHubId(), e);
         }
     }
