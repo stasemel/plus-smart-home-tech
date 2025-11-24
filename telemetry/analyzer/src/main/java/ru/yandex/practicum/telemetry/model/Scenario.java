@@ -10,8 +10,10 @@ import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,15 +22,16 @@ import java.util.Map;
 @Getter
 @Setter
 @Table(name = "scenarios")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Scenario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
-    private String hubId;
+    String hubId;
 
-    private String name;
+    String name;
 
     @OneToMany
     @MapKeyColumn(
@@ -38,7 +41,7 @@ public class Scenario {
             name = "scenario_conditions",
             joinColumns = @JoinColumn(name = "scenario_id"),
             inverseJoinColumns = @JoinColumn(name = "condition_id"))
-    private Map<String, Condition> conditions = new HashMap<>();
+    Map<String, Condition> conditions = new HashMap<>();
 
     @OneToMany
     @MapKeyColumn(
@@ -48,7 +51,7 @@ public class Scenario {
             name = "scenario_actions",
             joinColumns = @JoinColumn(name = "scenario_id"),
             inverseJoinColumns = @JoinColumn(name = "action_id"))
-    private Map<String, Action> actions = new HashMap<>();
+    Map<String, Action> actions = new HashMap<>();
 
 
     @Transient

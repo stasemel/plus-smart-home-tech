@@ -7,8 +7,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.kafka.telemetry.event.ConditionOperationAvro;
 import ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro;
 
@@ -16,19 +18,20 @@ import ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro;
 @Getter
 @Setter
 @Table(name = "conditions")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Condition {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @Enumerated(EnumType.STRING)
-    private ConditionTypeAvro type;
+    ConditionTypeAvro type;
 
     @Enumerated(EnumType.STRING)
-    private ConditionOperationAvro operation;
+    ConditionOperationAvro operation;
 
-    private Integer value;
+    Integer value;
 
     public boolean check(int sensorValue) {
         return switch (operation) {
