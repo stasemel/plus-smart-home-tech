@@ -14,7 +14,6 @@ import java.time.Instant;
 @Slf4j
 public abstract class BaseHubEventHandler implements HubEventHandler {
     protected final KafkaEventProducer producer;
-    private final String topic = "telemetry.hubs.v1";
 
     protected abstract SpecificRecordBase mapToAvro(HubEventProto hubEvent);
 
@@ -32,7 +31,9 @@ public abstract class BaseHubEventHandler implements HubEventHandler {
                 )
                 .setPayload(mapToAvro(event))
                 .build();
-        ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(getTopic(), hubEventAvro);
+        ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(
+                producer.getKafkaConfig().getHubEventTopic(),
+                hubEventAvro);
         producer.getProducer().send(record);
 
     }

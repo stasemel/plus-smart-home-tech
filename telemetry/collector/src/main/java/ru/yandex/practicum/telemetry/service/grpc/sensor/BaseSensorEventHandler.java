@@ -12,8 +12,6 @@ import java.time.Instant;
 @Getter
 public abstract class BaseSensorEventHandler implements SensorEventHandler {
     private final KafkaEventProducer producer;
-    private final String topic = "telemetry.sensors.v1";
-
 
     protected BaseSensorEventHandler(KafkaEventProducer producer) {
         this.producer = producer;
@@ -32,7 +30,9 @@ public abstract class BaseSensorEventHandler implements SensorEventHandler {
                                 sensorEvent.getTimestamp().getNanos())
                 )
                 .build();
-        ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(getTopic(), sensorEventAvro);
+        ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(
+                producer.getKafkaConfig().getSensorEventTopic(),
+                sensorEventAvro);
         producer.getProducer().send(record);
     }
 }
