@@ -10,7 +10,7 @@ import ru.yandex.practicum.commerce.model.Product;
 import java.util.UUID;
 
 @Repository
-public interface StoreRepository extends JpaRepository<Product, String> {
+public interface StoreRepository extends JpaRepository<Product, UUID> {
     Page<Product> findAllByProductCategory(ProductCategory category, Pageable pageable);
 
     Product findByProductId(UUID productId);
