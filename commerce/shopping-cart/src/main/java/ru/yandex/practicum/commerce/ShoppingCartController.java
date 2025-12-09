@@ -39,7 +39,7 @@ public class ShoppingCartController {
 
     @PutMapping
     public CartDto createCart(@PathVariable @NotBlank String userName,
-                              @RequestBody Map<UUID, Integer> products) {
+                              @RequestBody Map<UUID, Long> products) {
         log.info("Create Cart for userName {} with {}", userName, products);
         CartDto cartDto = cartService.create(userName, products);
         log.info("Cart created: {}", cartDto);

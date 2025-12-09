@@ -11,7 +11,7 @@ import java.util.UUID;
 @Service public interface CartService {
     CartDto getCartByUserName(String userName);
 
-    CartDto create(String userName, Map<UUID, Integer> products);
+    CartDto create(String userName, Map<UUID, Long> products);
 
     void deleteCart(String userName);
 

@@ -42,9 +42,9 @@ public class ShoppingCart {
             joinColumns = {@JoinColumn(name = "cart_id", referencedColumnName = "id")})
     @MapKeyColumn(name = "product_id")
     @Column(name = "quantity")
-    Map<UUID, Integer> products;
+    Map<UUID, Long> products;
 
-    public void addItem(UUID productId, Integer quantity) {
+    public void addItem(UUID productId, Long quantity) {
         this.products.put(productId, quantity);
     }
 }

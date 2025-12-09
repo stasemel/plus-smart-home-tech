@@ -1,5 +1,6 @@
-package ru.yandex.practicum.commerce.dto.cart;
+package ru.yandex.practicum.commerce.dto.warhouse;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Getter
@@ -18,7 +20,13 @@ import java.util.UUID;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
 @ToString
-public class ChangeQuantityDto {
+public class WarehouseDto {
+    @NotNull
     UUID productId;
-    Long newQuantity;
+
+    DimensionDto dimension;
+
+    Boolean fragile;
+
+    BigDecimal weight;
 }

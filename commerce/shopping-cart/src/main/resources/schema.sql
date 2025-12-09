@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS shopping_cart_items
 (
     cart_id    UUID    NOT NULL REFERENCES shopping_carts (id) ON DELETE CASCADE,
     product_id UUID    NOT NULL,
-    quantity   INTEGER NOT NULL,
+    quantity   BIGINT NOT NULL,
     PRIMARY KEY (cart_id, product_id)
 );
 

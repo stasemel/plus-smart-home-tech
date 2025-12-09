@@ -1,7 +1,6 @@
 package ru.yandex.practicum.commerce.dto.product;
 
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

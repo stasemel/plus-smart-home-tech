@@ -33,12 +33,12 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public CartDto create(String userName, Map<UUID, Integer> products) {
+    public CartDto create(String userName, Map<UUID, Long> products) {
         ShoppingCart cart = ShoppingCart.builder().userName(userName).build();
         final HashMap<UUID, String> addedError = new HashMap<>();
-        for (Map.Entry<UUID, Integer> entry : products.entrySet()) {
+        for (Map.Entry<UUID, Long> entry : products.entrySet()) {
             UUID productId = entry.getKey();
-            Integer quantity = entry.getValue();
+            Long quantity = entry.getValue();
             if (!validateProduct(productId)) {
                 addedError.put(productId, "Unknown product");
                 continue;

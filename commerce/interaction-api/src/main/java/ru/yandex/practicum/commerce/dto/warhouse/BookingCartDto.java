@@ -1,4 +1,4 @@
-package ru.yandex.practicum.commerce.dto.cart;
+package ru.yandex.practicum.commerce.dto.warhouse;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -9,7 +9,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
-import java.util.UUID;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -18,7 +18,8 @@ import java.util.UUID;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
 @ToString
-public class ChangeQuantityDto {
-    UUID productId;
-    Long newQuantity;
+public class BookingCartDto {
+    BigDecimal deliveryWeight;
+    BigDecimal deliveryVolume;
+    Boolean fragile;
 }

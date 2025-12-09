@@ -1,4 +1,4 @@
-package ru.yandex.practicum.commerce.dto.cart;
+package ru.yandex.practicum.commerce.dto.warhouse;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -9,8 +9,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
-import java.util.UUID;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,7 +16,10 @@ import java.util.UUID;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
 @ToString
-public class ChangeQuantityDto {
-    UUID productId;
-    Long newQuantity;
+public class AddressDto {
+    String country;
+    String city;
+    String street;
+    String house;
+    String flat;
 }

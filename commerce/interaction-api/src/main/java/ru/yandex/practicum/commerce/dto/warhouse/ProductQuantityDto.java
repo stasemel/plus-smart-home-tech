@@ -1,4 +1,4 @@
-package ru.yandex.practicum.commerce.dto.cart;
+package ru.yandex.practicum.commerce.dto.warhouse;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -18,7 +18,8 @@ import java.util.UUID;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
 @ToString
-public class ChangeQuantityDto {
+public class ProductQuantityDto {
     UUID productId;
-    Long newQuantity;
+    Long quantity;
+
 }
