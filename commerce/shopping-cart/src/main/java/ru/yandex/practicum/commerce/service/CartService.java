@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Service public interface CartService {
+@Service
+public interface CartService {
     CartDto getCartByUserName(String userName);
 
     CartDto create(String userName, Map<UUID, Long> products);

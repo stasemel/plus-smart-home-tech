@@ -23,7 +23,7 @@ import ru.yandex.practicum.commerce.service.WarehouseService;
 @Slf4j
 @Validated
 public class WarehouseCollector {
-    WarehouseService warehouseService;
+    private final WarehouseService warehouseService;
 
     @PutMapping
     public void putNewProduct(@RequestBody @Valid WarehouseDto warehouseDto) {

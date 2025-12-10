@@ -38,8 +38,13 @@ public class StoreServiceImpl implements StoreService {
     @Transactional
     public ProductCreateDto createProduct(ProductCreateDto productCreateDto) {
         Product product = storeMapper.dtoToModel(productCreateDto);
-        return storeMapper.modelToDto(storeRepository.save(product));
+        return storeMapper.modelToDto(saveProductTransaction(product));
 
+    }
+
+    @Transactional
+    protected Product saveProductTransaction(Product product) {
+        return storeRepository.save(product);
     }
 
     @Override
@@ -94,21 +99,19 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    @Transactional
     public ProductCreateDto updateProduct(ProductUpdateDto productUpdateDto) {
         Product product = findById(productUpdateDto.getProductId());
         storeMapper.updateProductFromDto(productUpdateDto, product);
 
-        return storeMapper.modelToDto(storeRepository.save(product));
+        return storeMapper.modelToDto(saveProductTransaction(product));
     }
 
     @Override
-    @Transactional
     public boolean removeProduct(String id) {
         UUID productId = UUID.fromString(id.trim().replace("\"", ""));
         Product product = findById(productId);
         product.setProductState(ProductState.DEACTIVATE);
-        Product saved = storeRepository.save(product);
+        Product saved = saveProductTransaction(product);
         return saved.getProductState().equals(ProductState.DEACTIVATE);
     }
 

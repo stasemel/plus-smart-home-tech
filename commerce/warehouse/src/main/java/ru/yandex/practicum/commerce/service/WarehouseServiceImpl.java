@@ -2,6 +2,7 @@ package ru.yandex.practicum.commerce.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.commerce.dto.cart.CartDto;
 import ru.yandex.practicum.commerce.dto.warhouse.AddressDto;
 import ru.yandex.practicum.commerce.dto.warhouse.BookingCartDto;
@@ -10,7 +11,7 @@ import ru.yandex.practicum.commerce.dto.warhouse.WarehouseDto;
 import ru.yandex.practicum.commerce.exception.NoSpecifiedProductInWarehouseException;
 import ru.yandex.practicum.commerce.exception.ProductAlreadyInWarehouseException;
 import ru.yandex.practicum.commerce.exception.ProductInShoppingCartLowQuantityInWarehouse;
-import ru.yandex.practicum.commerce.feign.ProductClient;
+import ru.yandex.practicum.commerce.feign.ShoppingStoreClient;
 import ru.yandex.practicum.commerce.model.Address;
 import ru.yandex.practicum.commerce.model.Warehouse;
 import ru.yandex.practicum.commerce.repository.WarehouseMapper;
@@ -29,7 +30,7 @@ import java.util.UUID;
 public class WarehouseServiceImpl implements WarehouseService {
     private final WarehouseMapper warehouseMapper;
     private final WarehouseRepository warehouseRepository;
-    private final ProductClient productClient;
+    private final ShoppingStoreClient shoppingStoreClient;
     private static final String[] ADDRESSES =
             new String[]{"ADDRESS_1", "ADDRESS_2"};
 
@@ -44,7 +45,12 @@ public class WarehouseServiceImpl implements WarehouseService {
         }
         Warehouse warehouse = warehouseMapper.dtoToModel(warehouseDto);
         warehouse.setQuantity(0L);
-        warehouseRepository.save(warehouse);
+        saveWarehouseTransaction(warehouse);
+    }
+
+    @Transactional
+    protected Warehouse saveWarehouseTransaction(Warehouse warehouse) {
+        return warehouseRepository.save(warehouse);
     }
 
     @Override
@@ -87,7 +93,7 @@ public class WarehouseServiceImpl implements WarehouseService {
                 warehouse.getQuantity() +
                         productQuantityDto.getQuantity()
         );
-        warehouseRepository.save(warehouse);
+        saveWarehouseTransaction(warehouse);
     }
 
     @Override

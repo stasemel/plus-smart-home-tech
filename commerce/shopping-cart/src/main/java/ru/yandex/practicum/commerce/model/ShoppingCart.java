@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -45,6 +46,9 @@ public class ShoppingCart {
     Map<UUID, Long> products;
 
     public void addItem(UUID productId, Long quantity) {
+        if (this.products == null) {
+            this.products = new HashMap<>();
+        }
         this.products.put(productId, quantity);
     }
 }

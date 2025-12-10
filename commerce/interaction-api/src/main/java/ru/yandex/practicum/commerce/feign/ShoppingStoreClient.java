@@ -7,8 +7,8 @@ import ru.yandex.practicum.commerce.dto.product.ProductCreateDto;
 
 import java.util.UUID;
 
-@FeignClient(name = "shopping-store")
-public interface ProductClient {
+@FeignClient(name = "shopping-store", path = "/api/v1/shopping-store")
+public interface ShoppingStoreClient {
     @GetMapping("/{productId}")
     ProductCreateDto findByProductId(@PathVariable UUID productId);
 
