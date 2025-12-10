@@ -1,0 +1,19 @@
+kafka:
+  aggregator:
+    bootstrap-servers: localhost:9092
+    sensor-event-topic: telemetry.sensors.v1
+    snapshots-topic: telemetry.snapshots.v1
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: ru.yandex.practicum.kafka.telemetry.serializer.SensorEventAvroDeserializer
+      group-id: aggregator
+      client-id: consumer1
+      properties:
+        fetch-min-bytes: 100
+        enable-auto-commit: false
+        fetch-max-wait-ms: 10000
+        max-partition-fetch-bytes: 1000000
+        max-poll-records: 10
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: ru.yandex.practicum.kafka.telemetry.serializer.GeneralAvroSerializer

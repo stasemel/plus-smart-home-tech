@@ -49,3 +49,51 @@ services:
       retries: 10
     ports:
       - "5432:5432"
+
+  postgres-shopping-store:
+    image: postgres:16.1
+    container_name: shopping-store
+    hostname: shopping-store
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: shopping-store
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+    ports:
+      - "5433:5432"
+
+  postgres-shopping-cart:
+    image: postgres:16.1
+    container_name: shopping-cart
+    hostname: shopping-cart
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: shopping-cart
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+    ports:
+      - "5434:5432"
+
+  postgres-shopping-warehouse:
+    image: postgres:16.1
+    container_name: warehouse
+    hostname: warehouse
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: warehouse
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+    ports:
+      - "5435:5432"
