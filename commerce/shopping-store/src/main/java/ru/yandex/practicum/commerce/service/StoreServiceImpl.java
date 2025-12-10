@@ -133,11 +133,12 @@ public class StoreServiceImpl implements StoreService {
     private Sort.Direction getSortDirection(String[] parts) {
         Sort.Direction direction;
         String last = parts[parts.length - 1].trim().toUpperCase();
-        if (parts[parts.length - 1].trim().toUpperCase().equals("DESC")) {
+        String desc="DESC";
+        if (parts[parts.length - 1].trim().toUpperCase().equals(desc)) {
             direction = Sort.Direction.DESC;
         }
-        if ("ASC".equals(last) || "DESC".equals(last)) {
-            direction = "DESC".equals(last) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        if ("ASC".equals(last) || desc.equals(last)) {
+            direction = desc.equals(last) ? Sort.Direction.DESC : Sort.Direction.ASC;
         } else {
             direction = Sort.Direction.ASC;
         }
