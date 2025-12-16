@@ -38,13 +38,8 @@ public class StoreServiceImpl implements StoreService {
     @Transactional
     public ProductCreateDto createProduct(ProductCreateDto productCreateDto) {
         Product product = storeMapper.dtoToModel(productCreateDto);
-        return storeMapper.modelToDto(saveProductTransaction(product));
+        return storeMapper.modelToDto(storeRepository.save(product));
 
-    }
-
-    @Transactional
-    protected Product saveProductTransaction(Product product) {
-        return storeRepository.save(product);
     }
 
     @Override
@@ -59,7 +54,7 @@ public class StoreServiceImpl implements StoreService {
             pageable = PageRequest.of(page, size);
         }
         Page<Product> pageProduct;
-        if (category != null) {
+        if (category == null) {
             pageProduct = storeRepository.findAll(pageable);
         } else {
             pageProduct = storeRepository.findAllByProductCategory(category, pageable);
@@ -103,15 +98,16 @@ public class StoreServiceImpl implements StoreService {
         Product product = findById(productUpdateDto.getProductId());
         storeMapper.updateProductFromDto(productUpdateDto, product);
 
-        return storeMapper.modelToDto(saveProductTransaction(product));
+        return storeMapper.modelToDto(storeRepository.save(product));
     }
 
     @Override
+    @Transactional
     public boolean removeProduct(String id) {
         UUID productId = UUID.fromString(id.trim().replace("\"", ""));
         Product product = findById(productId);
         product.setProductState(ProductState.DEACTIVATE);
-        Product saved = saveProductTransaction(product);
+        Product saved = storeRepository.save(product);
         return saved.getProductState().equals(ProductState.DEACTIVATE);
     }
 
@@ -120,6 +116,12 @@ public class StoreServiceImpl implements StoreService {
         Product product = findById(productId);
         product.setQuantityState(quantityState);
         return storeMapper.modelToDto(storeRepository.save(product));
+    }
+
+    @Override
+    public List<ProductCreateDto> findProductsById(Collection<UUID> ids) {
+        List<Product> list = storeRepository.findAllById(ids);
+        return list.stream().map(storeMapper::modelToDto).toList();
     }
 
     private Product findById(UUID productId) {
@@ -133,7 +135,7 @@ public class StoreServiceImpl implements StoreService {
     private Sort.Direction getSortDirection(String[] parts) {
         Sort.Direction direction;
         String last = parts[parts.length - 1].trim().toUpperCase();
-        String desc="DESC";
+        String desc = "DESC";
         if (parts[parts.length - 1].trim().toUpperCase().equals(desc)) {
             direction = Sort.Direction.DESC;
         }

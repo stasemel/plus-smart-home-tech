@@ -23,6 +23,8 @@ import ru.yandex.practicum.commerce.dto.product.ProductQuantityState;
 import ru.yandex.practicum.commerce.dto.product.ProductUpdateDto;
 import ru.yandex.practicum.commerce.service.StoreService;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -85,5 +87,13 @@ public class ShoppingStoreController {
         ProductCreateDto productCreateDto = storeService.updateProductQuantityState(productId, quantityState);
         log.info("Update product {} quantity state {} done", productId, quantityState);
         return productCreateDto;
+    }
+
+    @GetMapping("/find-by-ids")
+    public List<ProductCreateDto> getProductsByIds(@RequestBody Collection<UUID> ids) {
+        log.info("Get products by ids {}", ids);
+        List<ProductCreateDto> products = storeService.findProductsById(ids);
+        log.info("Get products by ids: {} done: {}", products);
+        return products;
     }
 }

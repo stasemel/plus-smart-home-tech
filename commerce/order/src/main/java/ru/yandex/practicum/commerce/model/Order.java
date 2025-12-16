@@ -16,41 +16,55 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.GenericGenerator;
+import ru.yandex.practicum.commerce.dto.order.OrderState;
 
-import java.util.HashMap;
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
 @Entity
-@Table(name = "shopping_carts")
+@Table(name = "orders")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ShoppingCart {
+public class Order {
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(name = "id", columnDefinition = "UUID")
-    UUID shoppingCartId;
+    UUID orderId;
 
     @Column(name = "user_name", nullable = false)
     String userName;
 
-    @Column(name = "activity")
-    Boolean activity;
+    @Column(name = "shopping_cart_id", nullable = false)
+    UUID shoppingCartId;
+
     @ElementCollection
-    @CollectionTable(name = "shopping_cart_items",
-            joinColumns = {@JoinColumn(name = "cart_id", referencedColumnName = "id")})
+    @CollectionTable(name = "orders_products",
+            joinColumns = {@JoinColumn(name = "order_id", referencedColumnName = "id")})
     @MapKeyColumn(name = "product_id")
     @Column(name = "quantity")
     Map<UUID, Long> products;
 
-    public void addItem(UUID productId, Long quantity) {
-        if (this.products == null) {
-            this.products = new HashMap<>();
-        }
-        this.products.put(productId, quantity);
-    }
+    @Column(name = "payment_id", nullable = false)
+    UUID paymentId;
+    @Column(name = "delivery_id", nullable = false)
+    UUID deliveryId;
+    @Column(name = "state", nullable = false)
+    OrderState state;
+    @Column(name = "delivery-weight", nullable = false)
+    BigDecimal deliveryWeight;
+    @Column(name = "delivery-volume", nullable = false)
+    BigDecimal deliveryVolume;
+    @Column(name = "fragile", nullable = false)
+    Boolean fragile;
+    @Column(name = "total-price", nullable = false)
+    BigDecimal totalPrice;
+    @Column(name = "delivery-price", nullable = false)
+    BigDecimal deliveryPrice;
+    @Column(name = "product-price", nullable = false)
+    BigDecimal productPrice;
 }

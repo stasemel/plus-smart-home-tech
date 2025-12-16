@@ -7,6 +7,8 @@ import ru.yandex.practicum.commerce.dto.product.ProductPageDto;
 import ru.yandex.practicum.commerce.dto.product.ProductQuantityState;
 import ru.yandex.practicum.commerce.dto.product.ProductUpdateDto;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,4 +24,6 @@ public interface StoreService {
     boolean removeProduct(String id);
 
     ProductCreateDto updateProductQuantityState(UUID productId, ProductQuantityState quantityState);
+
+    List<ProductCreateDto> findProductsById(Collection<UUID> ids);
 }
