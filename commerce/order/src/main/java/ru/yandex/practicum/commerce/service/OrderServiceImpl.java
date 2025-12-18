@@ -8,6 +8,7 @@ import ru.yandex.practicum.commerce.dto.order.OrderCreateDto;
 import ru.yandex.practicum.commerce.dto.order.OrderDto;
 import ru.yandex.practicum.commerce.dto.order.OrderReturnDto;
 import ru.yandex.practicum.commerce.dto.order.OrderState;
+import ru.yandex.practicum.commerce.dto.product.ProductDto;
 import ru.yandex.practicum.commerce.dto.warhouse.BookingCartDto;
 import ru.yandex.practicum.commerce.exception.OrderNotFoundException;
 import ru.yandex.practicum.commerce.feign.ShoppingCartClient;
@@ -183,11 +184,11 @@ public class OrderServiceImpl implements OrderService {
         if (products == null || products.isEmpty()) {
             return BigDecimal.ZERO;
         }
-        List<ru.yandex.practicum.commerce.dto.product.ProductCreateDto> productList =
+        List<ProductDto> productList =
                 shoppingStoreClient.getProductsByIds(products.keySet());
 
         BigDecimal total = BigDecimal.ZERO;
-        for (ru.yandex.practicum.commerce.dto.product.ProductCreateDto product : productList) {
+        for (ProductDto product : productList) {
             Long quantity = products.get(product.getProductId());
             if (quantity != null && quantity > 0) {
                 total = total.add(

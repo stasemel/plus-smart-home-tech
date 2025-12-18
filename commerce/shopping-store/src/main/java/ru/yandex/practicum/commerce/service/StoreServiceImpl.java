@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.commerce.dto.product.ProductCategory;
-import ru.yandex.practicum.commerce.dto.product.ProductCreateDto;
+import ru.yandex.practicum.commerce.dto.product.ProductDto;
 import ru.yandex.practicum.commerce.dto.product.ProductPageDto;
 import ru.yandex.practicum.commerce.dto.product.ProductQuantityState;
 import ru.yandex.practicum.commerce.dto.product.ProductState;
@@ -36,8 +36,8 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     @Transactional
-    public ProductCreateDto createProduct(ProductCreateDto productCreateDto) {
-        Product product = storeMapper.dtoToModel(productCreateDto);
+    public ProductDto createProduct(ProductDto productDto) {
+        Product product = storeMapper.dtoToModel(productDto);
         return storeMapper.modelToDto(storeRepository.save(product));
 
     }
@@ -89,12 +89,12 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ProductCreateDto findByProductId(UUID productId) {
+    public ProductDto findByProductId(UUID productId) {
         return storeMapper.modelToDto(findById(productId));
     }
 
     @Override
-    public ProductCreateDto updateProduct(ProductUpdateDto productUpdateDto) {
+    public ProductDto updateProduct(ProductUpdateDto productUpdateDto) {
         Product product = findById(productUpdateDto.getProductId());
         storeMapper.updateProductFromDto(productUpdateDto, product);
 
@@ -112,14 +112,14 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ProductCreateDto updateProductQuantityState(UUID productId, ProductQuantityState quantityState) {
+    public ProductDto updateProductQuantityState(UUID productId, ProductQuantityState quantityState) {
         Product product = findById(productId);
         product.setQuantityState(quantityState);
         return storeMapper.modelToDto(storeRepository.save(product));
     }
 
     @Override
-    public List<ProductCreateDto> findProductsById(Collection<UUID> ids) {
+    public List<ProductDto> findProductsById(Collection<UUID> ids) {
         List<Product> list = storeRepository.findAllById(ids);
         return list.stream().map(storeMapper::modelToDto).toList();
     }

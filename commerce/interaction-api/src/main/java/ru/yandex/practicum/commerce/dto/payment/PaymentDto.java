@@ -1,4 +1,4 @@
-package ru.yandex.practicum.commerce.dto.product;
+package ru.yandex.practicum.commerce.dto.payment;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -9,7 +9,8 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Collection;
+import java.math.BigDecimal;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,10 +19,9 @@ import java.util.Collection;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
 @ToString
-public class ProductPageDto {
-    Collection<ProductDto> content;
-    Integer page;
-    Integer size;
-    Collection<SortDto> sort;
+public class PaymentDto {
+    UUID paymentId;
+    BigDecimal totalPayment;
+    BigDecimal deliveryTotal;
+    BigDecimal feeTotal;
 }
-

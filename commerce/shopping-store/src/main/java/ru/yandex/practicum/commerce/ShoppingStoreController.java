@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.commerce.dto.product.ProductCategory;
-import ru.yandex.practicum.commerce.dto.product.ProductCreateDto;
+import ru.yandex.practicum.commerce.dto.product.ProductDto;
 import ru.yandex.practicum.commerce.dto.product.ProductPageDto;
 import ru.yandex.practicum.commerce.dto.product.ProductQuantityState;
 import ru.yandex.practicum.commerce.dto.product.ProductUpdateDto;
@@ -36,9 +36,9 @@ public class ShoppingStoreController {
     public final StoreService storeService;
 
     @PutMapping
-    public ProductCreateDto create(@Valid @RequestBody ProductCreateDto productCreateDto) {
-        log.info("Create product {}", productCreateDto);
-        ProductCreateDto savedProduct = storeService.createProduct(productCreateDto);
+    public ProductDto create(@Valid @RequestBody ProductDto productDto) {
+        log.info("Create product {}", productDto);
+        ProductDto savedProduct = storeService.createProduct(productDto);
         log.info("Create product {} done", savedProduct);
         return savedProduct;
     }
@@ -56,19 +56,19 @@ public class ShoppingStoreController {
     }
 
     @GetMapping("/{productId}")
-    public ProductCreateDto findByProductId(@PathVariable UUID productId) {
+    public ProductDto findByProductId(@PathVariable UUID productId) {
         log.info("Get product by id {}", productId);
-        ProductCreateDto productCreateDto = storeService.findByProductId(productId);
-        log.info("Found {}", productCreateDto);
-        return productCreateDto;
+        ProductDto productDto = storeService.findByProductId(productId);
+        log.info("Found {}", productDto);
+        return productDto;
     }
 
     @PostMapping
-    public ProductCreateDto updateProduct(@RequestBody @Valid ProductUpdateDto productUpdateDto) {
+    public ProductDto updateProduct(@RequestBody @Valid ProductUpdateDto productUpdateDto) {
         log.info("Update product {}", productUpdateDto);
-        ProductCreateDto productCreateDto = storeService.updateProduct(productUpdateDto);
-        log.info("Update product {} done", productCreateDto);
-        return productCreateDto;
+        ProductDto productDto = storeService.updateProduct(productUpdateDto);
+        log.info("Update product {} done", productDto);
+        return productDto;
     }
 
     @PostMapping("/removeProductFromStore")
@@ -80,19 +80,19 @@ public class ShoppingStoreController {
     }
 
     @PostMapping("/quantityState")
-    public ProductCreateDto updateProductQuantityState(
+    public ProductDto updateProductQuantityState(
             @RequestParam UUID productId,
             @RequestParam ProductQuantityState quantityState) {
         log.info("Update product {} quantity state {}", productId, quantityState);
-        ProductCreateDto productCreateDto = storeService.updateProductQuantityState(productId, quantityState);
+        ProductDto productDto = storeService.updateProductQuantityState(productId, quantityState);
         log.info("Update product {} quantity state {} done", productId, quantityState);
-        return productCreateDto;
+        return productDto;
     }
 
     @GetMapping("/find-by-ids")
-    public List<ProductCreateDto> getProductsByIds(@RequestBody Collection<UUID> ids) {
+    public List<ProductDto> getProductsByIds(@RequestBody Collection<UUID> ids) {
         log.info("Get products by ids {}", ids);
-        List<ProductCreateDto> products = storeService.findProductsById(ids);
+        List<ProductDto> products = storeService.findProductsById(ids);
         log.info("Get products by ids: {} done: {}", products);
         return products;
     }
