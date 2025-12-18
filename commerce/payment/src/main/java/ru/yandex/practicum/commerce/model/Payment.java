@@ -32,7 +32,7 @@ public class Payment {
     UUID paymentId;
     UUID orderId;
     PaymentState state;
-    BigDecimal productCost;
+    BigDecimal productPrice;
     BigDecimal totalPayment;
     BigDecimal deliveryTotal;
     BigDecimal feeTotal;

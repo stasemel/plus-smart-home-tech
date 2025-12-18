@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.commerce.dto.order.OrderDto;
 import ru.yandex.practicum.commerce.dto.payment.PaymentDto;
 import ru.yandex.practicum.commerce.dto.payment.PaymentState;
+import ru.yandex.practicum.commerce.exception.NoEnoughInfoInOrderToCalculateException;
 import ru.yandex.practicum.commerce.exception.PaymentNotFoundException;
 import ru.yandex.practicum.commerce.model.Payment;
 import ru.yandex.practicum.commerce.repository.PaymentMapper;
@@ -44,13 +45,13 @@ public class PaymentServiceImpl implements PaymentService {
 
     private void validateProductPrice(OrderDto orderDto) {
         if (orderDto.getProductPrice() == null) {
-            throw new IllegalArgumentException("Not enough data for calculation. Wrong product price.");
+            throw new NoEnoughInfoInOrderToCalculateException("Not enough data for calculation. Wrong product price.");
         }
     }
 
     private void validateDeliveryPrice(OrderDto orderDto) {
         if (orderDto.getDeliveryPrice() == null) {
-            throw new IllegalArgumentException("Not enough data for calculation. Wrong delivery price.");
+            throw new NoEnoughInfoInOrderToCalculateException("Not enough data for calculation. Wrong delivery price.");
         }
     }
 

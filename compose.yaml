@@ -128,3 +128,18 @@ services:
       retries: 10
     ports:
       - "5437:5432"
+  postgres-delivery:
+    image: postgres:16.1
+    container_name: delivery
+    hostname: delivery
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: delivery
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+    ports:
+      - "5438:5432"
