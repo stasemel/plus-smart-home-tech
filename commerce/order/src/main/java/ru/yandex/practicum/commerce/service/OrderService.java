@@ -29,4 +29,6 @@ public interface OrderService {
     OrderDto assemblyOrderFailed(UUID orderId);
 
     OrderDto calculateTotal(UUID orderId);
+
+    OrderDto getOrderById(UUID orderId);
 }

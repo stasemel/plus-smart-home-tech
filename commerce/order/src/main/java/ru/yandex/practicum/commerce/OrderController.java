@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,6 +42,14 @@ public class OrderController {
         List<OrderDto> list = orderService.findAllByUsername(username);
         log.info("Found {} users", list.size());
         return list;
+    }
+
+    @GetMapping("/{orderId}")
+    public OrderDto getOrderById(@PathVariable @NotNull UUID orderId) {
+        log.info("Get order by id {}", orderId);
+        OrderDto orderDto = orderService.getOrderById(orderId);
+        log.info("Get order by id {}: {}", orderId, orderDto);
+        return orderDto;
     }
 
     @PutMapping("/return")

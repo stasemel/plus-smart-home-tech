@@ -176,6 +176,13 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.modelToDto(saved);
     }
 
+    @Override
+    public OrderDto getOrderById(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found: " + orderId));
+        return orderMapper.modelToDto(order);
+    }
+
     private BigDecimal calculateDelivery(UUID deliveryId) {
         return BigDecimal.ZERO;
     }
