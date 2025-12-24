@@ -7,8 +7,10 @@ import ru.yandex.practicum.commerce.dto.delivery.DeliveryDto;
 import ru.yandex.practicum.commerce.dto.delivery.DeliveryState;
 import ru.yandex.practicum.commerce.dto.order.OrderDto;
 import ru.yandex.practicum.commerce.dto.warhouse.AddressDto;
+import ru.yandex.practicum.commerce.dto.warhouse.ShippedDto;
 import ru.yandex.practicum.commerce.exception.DeliveryNotFoundException;
 import ru.yandex.practicum.commerce.feign.OrderClient;
+import ru.yandex.practicum.commerce.feign.WarehouseClient;
 import ru.yandex.practicum.commerce.model.Delivery;
 import ru.yandex.practicum.commerce.repository.DeliveryMapper;
 import ru.yandex.practicum.commerce.repository.DeliveryRepository;
@@ -23,6 +25,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final DeliveryRepository deliveryRepository;
     private final DeliveryMapper deliveryMapper;
     private final OrderClient orderClient;
+    private final WarehouseClient warehouseClient;
     private static final BigDecimal COST_COEFFICIENT_ADDRESS_ONE = BigDecimal.valueOf(1);
     private static final BigDecimal COST_COEFFICIENT_ADDRESS_TWO = BigDecimal.valueOf(2);
     private static final BigDecimal COST_COEFFICIENT_FRAGILE = BigDecimal.valueOf(0.2);
@@ -70,6 +73,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     public void successfulDelivery(UUID deliveryId) {
         Delivery delivery = deliveryRepository.findById(deliveryId)
                 .orElseThrow(() -> new DeliveryNotFoundException(String.format("Delivery not found: %s", deliveryId)));
+
+        orderClient.deliveryOrder(delivery.getOrderId());
+        orderClient.completedOrder(delivery.getOrderId());
+
         delivery.setDeliveryState(DeliveryState.DELIVERED);
         deliveryRepository.save(delivery);
     }
@@ -79,6 +86,12 @@ public class DeliveryServiceImpl implements DeliveryService {
     public void pickedDelivery(UUID deliveryId) {
         Delivery delivery = deliveryRepository.findById(deliveryId)
                 .orElseThrow(() -> new DeliveryNotFoundException(String.format("Delivery not found: %s", deliveryId)));
+
+        ShippedDto shippedDto = ShippedDto.builder()
+                .orderId(delivery.getOrderId())
+                .deliveryId(deliveryId)
+                .build();
+        warehouseClient.shippedToDelivery(shippedDto);
         delivery.setDeliveryState(DeliveryState.IN_PROGRESS);
         deliveryRepository.save(delivery);
     }
@@ -87,6 +100,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     public void failedDelivery(UUID deliveryId) {
         Delivery delivery = deliveryRepository.findById(deliveryId)
                 .orElseThrow(() -> new DeliveryNotFoundException(String.format("Delivery not found: %s", deliveryId)));
+
+        orderClient.deliveryOrderFailed(delivery.getOrderId());
+
         delivery.setDeliveryState(DeliveryState.FAILED);
         deliveryRepository.save(delivery);
     }

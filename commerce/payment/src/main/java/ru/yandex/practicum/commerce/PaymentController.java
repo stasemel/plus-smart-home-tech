@@ -50,7 +50,7 @@ public class PaymentController {
     @PostMapping("productCost")
     public BigDecimal calculateProductCost(@RequestBody @Valid OrderDto orderDto) {
         log.info("Calculate product cost for {}", orderDto);
-        BigDecimal productCost = paymentService.calculateProductCost(orderDto);
+        BigDecimal productCost = paymentService.getProductCost(orderDto);
         log.info("Calculate product cost for {} result: {}", orderDto, productCost);
         return productCost;
     }

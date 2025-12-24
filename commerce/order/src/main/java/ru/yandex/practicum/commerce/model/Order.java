@@ -1,13 +1,9 @@
 package ru.yandex.practicum.commerce.model;
 
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapKeyColumn;
@@ -18,10 +14,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.GenericGenerator;
-import org.springframework.boot.autoconfigure.amqp.RabbitConnectionDetails;
 import ru.yandex.practicum.commerce.dto.order.OrderState;
-import ru.yandex.practicum.commerce.dto.warhouse.AddressDto;
 
 import java.math.BigDecimal;
 import java.util.Map;

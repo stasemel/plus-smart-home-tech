@@ -13,7 +13,7 @@ public interface PaymentService {
 
     void refundPayment(UUID paymentId);
 
-    BigDecimal calculateProductCost(OrderDto orderDto);
+    BigDecimal getProductCost(OrderDto orderDto);
 
     void failedPayment(UUID paymentId);
 }

@@ -2,12 +2,10 @@ package ru.yandex.practicum.commerce.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.commerce.model.Order;
+import ru.yandex.practicum.commerce.model.OrderBooking;
 
-import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order, UUID> {
-    List<Order> findAllByUserName(String username);
+public interface OrderBookingRepository extends JpaRepository<OrderBooking, UUID> {
 }

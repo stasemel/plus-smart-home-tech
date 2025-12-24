@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.commerce.dto.order.OrderCreateDto;
 import ru.yandex.practicum.commerce.dto.order.OrderDto;
 import ru.yandex.practicum.commerce.dto.order.OrderState;
-import ru.yandex.practicum.commerce.dto.warhouse.AddressDto;
 import ru.yandex.practicum.commerce.model.Order;
 
 @Component

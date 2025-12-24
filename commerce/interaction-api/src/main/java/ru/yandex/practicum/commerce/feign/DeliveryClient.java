@@ -10,12 +10,16 @@ import ru.yandex.practicum.commerce.dto.delivery.DeliveryDto;
 import ru.yandex.practicum.commerce.dto.order.OrderDto;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @FeignClient(name = "delivery", path = "/api/v1/delivery")
 public interface DeliveryClient {
     @PutMapping
-    public DeliveryDto createDelivery(@RequestBody @Valid DeliveryDto deliveryDto);
+    DeliveryDto createDelivery(@RequestBody @Valid DeliveryDto deliveryDto);
 
     @PostMapping("/cost")
-    public BigDecimal costDelivery(@RequestBody @NotNull OrderDto order);
+    BigDecimal costDelivery(@RequestBody @NotNull OrderDto order);
+
+    @PostMapping("/picked")
+    void pickedDelivery(@RequestBody @NotNull UUID deliveryId);
 }

@@ -16,3 +16,12 @@ CREATE TABLE IF NOT EXISTS warehouse
     CONSTRAINT pk_products PRIMARY KEY (product_id)
 );
 
+CREATE TABLE IF NOT EXISTS order_booking
+(
+    order_id              UUID PRIMARY KEY,
+    delivery_weight       NUMERIC(100, 2) NOT NULL,
+    delivery_volume       NUMERIC(100, 2) NOT NULL,
+    fragile               BOOLEAN         NOT NULL,
+    delivery_id           UUID,
+    warehouse_delivery_id UUID
+);

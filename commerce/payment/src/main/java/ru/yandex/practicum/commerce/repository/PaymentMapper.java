@@ -8,8 +8,5 @@ import ru.yandex.practicum.commerce.model.Payment;
 @Component
 @Mapper(componentModel = "spring")
 public abstract class PaymentMapper {
-
-    public abstract Payment dtoToModel(PaymentDto paymentDto);
-
     public abstract PaymentDto modelToDto(Payment payment);
 }

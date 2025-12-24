@@ -24,5 +24,27 @@ spring:
             - Path=/warehouse/**
           filters:
             - PrefixPath=/api/v1
+        - id: delivery
+          uri: lb://delivery
+
+          predicates:
+            - Path=/delivery/**
+          filters:
+            - PrefixPath=/api/v1
+        - id: order
+          uri: lb://order
+
+          predicates:
+            - Path=/order/**
+          filters:
+            - PrefixPath=/api/v1
+        - id: payment
+          uri: lb://payment
+
+          predicates:
+            - Path=/payment/**
+          filters:
+            - PrefixPath=/api/v1
+
 server:
   port: 8080

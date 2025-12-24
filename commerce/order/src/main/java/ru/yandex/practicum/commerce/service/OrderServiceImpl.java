@@ -10,13 +10,14 @@ import ru.yandex.practicum.commerce.dto.order.OrderCreateDto;
 import ru.yandex.practicum.commerce.dto.order.OrderDto;
 import ru.yandex.practicum.commerce.dto.order.OrderReturnDto;
 import ru.yandex.practicum.commerce.dto.order.OrderState;
-import ru.yandex.practicum.commerce.dto.product.ProductDto;
+import ru.yandex.practicum.commerce.dto.payment.PaymentDto;
 import ru.yandex.practicum.commerce.dto.warhouse.AddressDto;
+import ru.yandex.practicum.commerce.dto.warhouse.AssemblyOrderDto;
 import ru.yandex.practicum.commerce.dto.warhouse.BookingCartDto;
 import ru.yandex.practicum.commerce.exception.OrderNotFoundException;
 import ru.yandex.practicum.commerce.feign.DeliveryClient;
+import ru.yandex.practicum.commerce.feign.PaymentClient;
 import ru.yandex.practicum.commerce.feign.ShoppingCartClient;
-import ru.yandex.practicum.commerce.feign.ShoppingStoreClient;
 import ru.yandex.practicum.commerce.feign.WarehouseClient;
 import ru.yandex.practicum.commerce.model.Order;
 import ru.yandex.practicum.commerce.repository.OrderMapper;
@@ -33,9 +34,9 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final OrderRepository orderRepository;
     private final WarehouseClient warehouseClient;
-    private final ShoppingStoreClient shoppingStoreClient;
     private final ShoppingCartClient shoppingCartClient;
     private final DeliveryClient deliveryClient;
+    private final PaymentClient paymentClient;
 
     @Override
     public OrderDto createOrder(OrderCreateDto orderCreateDto) {
@@ -44,10 +45,6 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("Cart is empty or not found");
         }
 
-        BigDecimal productPrice = calculateProductPrice(cartDto.getProducts());
-        if (productPrice.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Product price must be > 0");
-        }
         AddressDto fromAddressDto = warehouseClient.getAddress();
         BookingCartDto booking = warehouseClient.bookCart(cartDto);
 
@@ -58,18 +55,22 @@ public class OrderServiceImpl implements OrderService {
         order.setFragile(booking.getFragile());
         order.setDeliveryVolume(booking.getDeliveryVolume());
         order.setDeliveryWeight(booking.getDeliveryWeight());
-        order.setProductPrice(productPrice);
         order.setDeliveryPrice(BigDecimal.ZERO);
-        order.setTotalPrice(productPrice.add(order.getDeliveryPrice()));
         order.setState(OrderState.NEW);
 
         //считаем доставку
         DeliveryDto delivery = createDelivery(order, fromAddressDto, orderCreateDto.getDeliveryAddress());
         order.setDeliveryId(delivery.getDeliveryId());
         BigDecimal deliveryCost = calculateDelivery(order);
-
         order.setDeliveryPrice(deliveryCost);
-        order.setTotalPrice(productPrice.add(deliveryCost));
+
+        //создаем оплату, считаем НДС
+        PaymentDto paymentDto = paymentClient.createPayment(orderMapper.modelToDto(order));
+        order.setPaymentId(paymentDto.getPaymentId());
+        BigDecimal productPrice = paymentClient.calculateProductCost(orderMapper.modelToDto(order));
+        order.setProductPrice(productPrice);
+        BigDecimal totalPrice = paymentClient.calculateTotalCost(orderMapper.modelToDto(order));
+        order.setTotalPrice(totalPrice);
 
         //транзакция
         Order saved = orderRepository.save(order);
@@ -79,8 +80,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<OrderDto> findAllByUsername(String username) {
-        List<Order> orders = orderRepository.findAllByUsername(username);
+    public List<OrderDto> findAllByUserName(String username) {
+        List<Order> orders = orderRepository.findAllByUserName(username);
         return orders.stream().map(orderMapper::modelToDto).toList();
     }
 
@@ -89,6 +90,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto returnOrder(OrderReturnDto orderReturnDto) {
         Order order = orderRepository.findById(orderReturnDto.getOrderId())
                 .orElseThrow(() -> new OrderNotFoundException("Order not found: " + orderReturnDto.getOrderId()));
+        paymentClient.refundPayment(order.getPaymentId());
         order.setState(OrderState.PRODUCT_RETURNED);
         Order saved = orderRepository.save(order);
         return orderMapper.modelToDto(saved);
@@ -100,8 +102,14 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("Order not found: " + orderId));
         if (order.getState() != OrderState.NEW) {
-            throw new IllegalStateException("Order must be in CREATED state to be paid");
+            throw new IllegalStateException("Order must be in NEW state to be paid");
         }
+        AssemblyOrderDto assemblyOrderDto = AssemblyOrderDto.builder()
+                .products(order.getProducts())
+                .orderId(orderId)
+                .build();
+
+        BookingCartDto bookingCartDto = warehouseClient.assemblyProductForOrderFromShoppingCart(assemblyOrderDto);
         order.setState(OrderState.PAID);
         Order saved = orderRepository.save(order);
         return orderMapper.modelToDto(saved);
@@ -158,9 +166,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto assemblyOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("Order not found: " + orderId));
-        if (order.getState() != OrderState.PAID) {
-            throw new IllegalStateException("Order must be PAID before assembly");
-        }
+        deliveryClient.pickedDelivery(order.getDeliveryId());
         order.setState(OrderState.ASSEMBLED);
         Order saved = orderRepository.save(order);
         return orderMapper.modelToDto(saved);
@@ -205,22 +211,4 @@ public class OrderServiceImpl implements OrderService {
         return createdDelivery;
     }
 
-    private BigDecimal calculateProductPrice(java.util.Map<UUID, Long> products) {
-        if (products == null || products.isEmpty()) {
-            return BigDecimal.ZERO;
-        }
-        List<ProductDto> productList =
-                shoppingStoreClient.getProductsByIds(products.keySet());
-
-        BigDecimal total = BigDecimal.ZERO;
-        for (ProductDto product : productList) {
-            Long quantity = products.get(product.getProductId());
-            if (quantity != null && quantity > 0) {
-                total = total.add(
-                        product.getPrice().multiply(BigDecimal.valueOf(quantity))
-                );
-            }
-        }
-        return total;
-    }
 }

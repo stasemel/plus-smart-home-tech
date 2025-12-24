@@ -1,5 +1,6 @@
-package ru.yandex.practicum.commerce.dto.order;
+package ru.yandex.practicum.commerce.dto.warhouse;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +10,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
-import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
@@ -20,17 +20,10 @@ import java.util.UUID;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
 @ToString
-public class OrderDto {
+public class AssemblyOrderDto {
+    @NotNull
     UUID orderId;
-    UUID shoppingCartId;
+    @NotNull
     Map<UUID, Long> products;
-    UUID paymentId;
-    UUID deliveryId;
-    OrderState state;
-    BigDecimal deliveryWeight;
-    BigDecimal deliveryVolume;
-    Boolean fragile;
-    BigDecimal totalPrice;
-    BigDecimal deliveryPrice;
-    BigDecimal productPrice;
+
 }

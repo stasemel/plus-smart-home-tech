@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface OrderService {
     OrderDto createOrder(OrderCreateDto orderCreateDto);
 
-    List<OrderDto> findAllByUsername(String username);
+    List<OrderDto> findAllByUserName(String username);
 
     OrderDto returnOrder(OrderReturnDto orderReturnDto);
 

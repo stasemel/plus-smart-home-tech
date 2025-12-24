@@ -39,7 +39,7 @@ public class OrderController {
     @GetMapping
     public List<OrderDto> getOrdersByUsername(@RequestParam @NotNull String username) {
         log.info("Get all orders by username {}", username);
-        List<OrderDto> list = orderService.findAllByUsername(username);
+        List<OrderDto> list = orderService.findAllByUserName(username);
         log.info("Found {} users", list.size());
         return list;
     }
@@ -108,7 +108,7 @@ public class OrderController {
         return order;
     }
 
-    @PostMapping("/assembly")
+    @PostMapping("/assembly/failed")
     public OrderDto assemblyOrderFailed(@RequestBody @NotNull UUID orderId) {
         log.info("Assembly order failed {}", orderId);
         OrderDto order = orderService.assemblyOrderFailed(orderId);
