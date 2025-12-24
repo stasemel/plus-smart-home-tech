@@ -4,13 +4,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.commerce.dto.cart.CartDto;
+import ru.yandex.practicum.commerce.dto.delivery.DeliveryDto;
+import ru.yandex.practicum.commerce.dto.delivery.DeliveryState;
 import ru.yandex.practicum.commerce.dto.order.OrderCreateDto;
 import ru.yandex.practicum.commerce.dto.order.OrderDto;
 import ru.yandex.practicum.commerce.dto.order.OrderReturnDto;
 import ru.yandex.practicum.commerce.dto.order.OrderState;
 import ru.yandex.practicum.commerce.dto.product.ProductDto;
+import ru.yandex.practicum.commerce.dto.warhouse.AddressDto;
 import ru.yandex.practicum.commerce.dto.warhouse.BookingCartDto;
 import ru.yandex.practicum.commerce.exception.OrderNotFoundException;
+import ru.yandex.practicum.commerce.feign.DeliveryClient;
 import ru.yandex.practicum.commerce.feign.ShoppingCartClient;
 import ru.yandex.practicum.commerce.feign.ShoppingStoreClient;
 import ru.yandex.practicum.commerce.feign.WarehouseClient;
@@ -31,6 +35,7 @@ public class OrderServiceImpl implements OrderService {
     private final WarehouseClient warehouseClient;
     private final ShoppingStoreClient shoppingStoreClient;
     private final ShoppingCartClient shoppingCartClient;
+    private final DeliveryClient deliveryClient;
 
     @Override
     public OrderDto createOrder(OrderCreateDto orderCreateDto) {
@@ -43,21 +48,32 @@ public class OrderServiceImpl implements OrderService {
         if (productPrice.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Product price must be > 0");
         }
-
+        AddressDto fromAddressDto = warehouseClient.getAddress();
         BookingCartDto booking = warehouseClient.bookCart(cartDto);
 
         Order order = orderMapper.dtoToModel(orderCreateDto);
+        order.setOrderId(UUID.randomUUID());
         order.setUserName(cartDto.getUserName());
         order.setProducts(cartDto.getProducts());
         order.setFragile(booking.getFragile());
         order.setDeliveryVolume(booking.getDeliveryVolume());
         order.setDeliveryWeight(booking.getDeliveryWeight());
         order.setProductPrice(productPrice);
-        order.setDeliveryPrice(calculateDelivery(order.getDeliveryId()));
+        order.setDeliveryPrice(BigDecimal.ZERO);
         order.setTotalPrice(productPrice.add(order.getDeliveryPrice()));
         order.setState(OrderState.NEW);
 
+        //считаем доставку
+        DeliveryDto delivery = createDelivery(order, fromAddressDto, orderCreateDto.getDeliveryAddress());
+        order.setDeliveryId(delivery.getDeliveryId());
+        BigDecimal deliveryCost = calculateDelivery(order);
+
+        order.setDeliveryPrice(deliveryCost);
+        order.setTotalPrice(productPrice.add(deliveryCost));
+
+        //транзакция
         Order saved = orderRepository.save(order);
+
         return orderMapper.modelToDto(saved);
     }
 
@@ -161,19 +177,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    @Transactional
     public OrderDto calculateTotal(UUID orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("Order not found: " + orderId));
+        return orderMapper.modelToDto(order);
+    }
 
-        BigDecimal productPrice = calculateProductPrice(order.getProducts());
-        order.setProductPrice(productPrice);
-        BigDecimal deliveryPrice = calculateDelivery(order.getDeliveryId());
-        order.setDeliveryPrice(deliveryPrice);
-        order.setTotalPrice(productPrice.add(deliveryPrice));
-
-        Order saved = orderRepository.save(order);
-        return orderMapper.modelToDto(saved);
+    private BigDecimal calculateDelivery(Order order) {
+        return deliveryClient.costDelivery(orderMapper.modelToDto(order));
     }
 
     @Override
@@ -183,8 +194,15 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.modelToDto(order);
     }
 
-    private BigDecimal calculateDelivery(UUID deliveryId) {
-        return BigDecimal.ZERO;
+    private DeliveryDto createDelivery(Order order, AddressDto fromAddress, AddressDto toAddress) {
+        DeliveryDto deliveryDto = DeliveryDto.builder()
+                .deliveryState(DeliveryState.CREATED)
+                .fromAddress(fromAddress)
+                .toAddress(toAddress)
+                .orderId(order.getOrderId())
+                .build();
+        DeliveryDto createdDelivery = deliveryClient.createDelivery(deliveryDto);
+        return createdDelivery;
     }
 
     private BigDecimal calculateProductPrice(java.util.Map<UUID, Long> products) {
