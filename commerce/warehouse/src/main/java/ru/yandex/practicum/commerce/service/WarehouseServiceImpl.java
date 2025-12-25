@@ -110,8 +110,8 @@ public class WarehouseServiceImpl implements WarehouseService {
 
         List<UUID> productIds = products.keySet().stream().toList();
         List<Warehouse> warehouses = warehouseRepository.findAllById(productIds);
-        for (Warehouse w : warehouses) {
-            w.setQuantity(w.getQuantity() - products.get(w.getProductId()));
+        for (Warehouse warehouse : warehouses) {
+            warehouse.setQuantity(warehouse.getQuantity() - products.get(warehouse.getProductId()));
         }
         warehouseRepository.saveAll(warehouses);
         OrderBooking orderBooking = OrderBooking.builder()
@@ -139,8 +139,8 @@ public class WarehouseServiceImpl implements WarehouseService {
     public void returnProducts(Map<UUID, Long> returnedProducts) {
         List<UUID> productIds = returnedProducts.keySet().stream().toList();
         List<Warehouse> warehouses = warehouseRepository.findAllById(productIds);
-        for (Warehouse w : warehouses) {
-            w.setQuantity(w.getQuantity() - returnedProducts.get(w.getProductId()));
+        for (Warehouse warehouse : warehouses) {
+            warehouse.setQuantity(warehouse.getQuantity() - returnedProducts.get(warehouse.getProductId()));
         }
         warehouseRepository.saveAll(warehouses);
     }

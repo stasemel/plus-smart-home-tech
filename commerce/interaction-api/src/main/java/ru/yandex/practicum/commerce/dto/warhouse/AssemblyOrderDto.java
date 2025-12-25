@@ -1,5 +1,6 @@
 package ru.yandex.practicum.commerce.dto.warhouse;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,7 +24,7 @@ import java.util.UUID;
 public class AssemblyOrderDto {
     @NotNull
     UUID orderId;
-    @NotNull
+    @NotEmpty
     Map<UUID, Long> products;
 
 }

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.commerce.dto.order;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,5 +24,6 @@ import java.util.UUID;
 public class OrderReturnDto {
     @NotNull
     UUID orderId;
+    @NotEmpty
     Map<UUID, Integer> products;
 }
