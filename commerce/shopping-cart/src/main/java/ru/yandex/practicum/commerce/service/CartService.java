@@ -19,4 +19,6 @@ public interface CartService {
     CartDto removeItems(String userName, List<UUID> productIds);
 
     CartDto changeQuantity(String userName, ChangeQuantityDto changeQuantityDto);
+
+    CartDto getCartById(UUID cartId);
 }

@@ -21,7 +21,7 @@ import java.util.UUID;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
 @ToString
-public class ProductCreateDto {
+public class ProductDto {
 
     UUID productId;
 

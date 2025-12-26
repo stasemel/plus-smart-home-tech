@@ -19,7 +19,7 @@ import java.util.Collection;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
 @ToString
 public class ProductPageDto {
-    Collection<ProductCreateDto> content;
+    Collection<ProductDto> content;
     Integer page;
     Integer size;
     Collection<SortDto> sort;

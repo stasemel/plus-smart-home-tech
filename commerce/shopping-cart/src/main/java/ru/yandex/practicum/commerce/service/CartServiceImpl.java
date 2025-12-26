@@ -8,7 +8,6 @@ import ru.yandex.practicum.commerce.dto.cart.ChangeQuantityDto;
 import ru.yandex.practicum.commerce.dto.warhouse.BookingCartDto;
 import ru.yandex.practicum.commerce.exception.CartNotFoundException;
 import ru.yandex.practicum.commerce.exception.ProductNotFoundInCartException;
-import ru.yandex.practicum.commerce.feign.ShoppingStoreClient;
 import ru.yandex.practicum.commerce.feign.WarehouseClient;
 import ru.yandex.practicum.commerce.model.ShoppingCart;
 import ru.yandex.practicum.commerce.repository.CartMapper;
@@ -22,97 +21,133 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class CartServiceImpl implements CartService {
+
     private final CartRepository cartRepository;
     private final CartMapper cartMapper;
-    private final ShoppingStoreClient shoppingStoreClient;
     private final WarehouseClient warehouseClient;
 
     @Override
     public CartDto getCartByUserName(String userName) {
-        ShoppingCart cart = getCart(userName);
+        ShoppingCart cart = getActiveCart(userName);
         return cartMapper.modelToDto(cart);
     }
 
     @Override
+    @Transactional
     public CartDto create(String userName, Map<UUID, Long> products) {
-        cartPrepare(userName);
-        ShoppingCart cart = ShoppingCart.builder().userName(userName).build();
-        final HashMap<UUID, String> addedError = new HashMap<>();
+        Map<UUID, Long> validatedProducts = new HashMap<>();
         for (Map.Entry<UUID, Long> entry : products.entrySet()) {
             UUID productId = entry.getKey();
             Long quantity = entry.getValue();
-            if ((quantity == null) || (quantity < 0)) {
-                addedError.put(productId, String.format("Quantity of product %s must be greater than 0 (%n)",
-                        productId,
-                        quantity));
-                continue;
+            if (quantity == null || quantity <= 0) {
+                throw new IllegalArgumentException("Quantity must be > 0 for product " + productId);
             }
-            cart.addItem(productId, quantity);
+            validatedProducts.put(productId, quantity);
         }
-        validateCartInWarehouse(cart);
-        return cartMapper.modelToDto(saveCartTransaction(cart));
+
+        CartDto tempCartDto = CartDto.builder()
+                .userName(userName)
+                .products(validatedProducts)
+                .build();
+
+        BookingCartDto bookingResponse = warehouseClient.bookCart(tempCartDto);
+        if (bookingResponse == null) {
+            throw new IllegalStateException("Warehouse returned null response");
+        }
+
+        List<ShoppingCart> activeCarts = cartRepository.findAllByUserNameAndActivity(userName, true);
+        for (ShoppingCart cart : activeCarts) {
+            cart.setActivity(false);
+        }
+        if (!activeCarts.isEmpty()) {
+            cartRepository.saveAll(activeCarts);
+        }
+
+        ShoppingCart newCart = ShoppingCart.builder()
+                .userName(userName)
+                .activity(true)
+                .products(validatedProducts)
+                .build();
+
+        ShoppingCart saved = cartRepository.save(newCart);
+        return cartMapper.modelToDto(saved);
     }
 
-    protected void cartPrepare(String userName) {
-        ShoppingCart cart = cartRepository.findByUserName(userName);
-        if (cart == null) return;
-        deleteCartTransaction(cart);
-    }
-
+    @Override
     @Transactional
-    protected void deleteCartTransaction(ShoppingCart cart) {
-        cartRepository.delete(cart);
-    }
-
-    @Override
     public void deleteCart(String userName) {
-        ShoppingCart cart = cartRepository.findByUserName(userName);
-        if (cart != null) deleteCartTransaction(cart);
+        List<ShoppingCart> carts = cartRepository.findAllByUserNameAndActivity(userName, true);
+        for (ShoppingCart cart : carts) {
+            cart.setActivity(false);
+        }
+        if (!carts.isEmpty()) {
+            cartRepository.saveAll(carts);
+        }
     }
 
     @Override
+    @Transactional
     public CartDto removeItems(String userName, List<UUID> productIds) {
-        ShoppingCart cart = getCart(userName);
+        ShoppingCart cart = getActiveCart(userName);
         for (UUID productId : productIds) {
             if (!cart.getProducts().containsKey(productId)) {
-                throw new ProductNotFoundInCartException(String.format("Product %s not found fro user %s",
-                        productId,
-                        userName));
+                throw new ProductNotFoundInCartException(
+                        String.format("Product %s not found for user %s", productId, userName)
+                );
             }
             cart.getProducts().remove(productId);
         }
-        return cartMapper.modelToDto(saveCartTransaction(cart));
+
+        if (!cart.getProducts().isEmpty()) {
+            validateCartInWarehouse(cart);
+        }
+
+        ShoppingCart saved = cartRepository.save(cart);
+        return cartMapper.modelToDto(saved);
     }
 
     @Override
-    public CartDto changeQuantity(String userName, ChangeQuantityDto changeQuantityDto) {
-        ShoppingCart cart = cartRepository.findByUserName(userName);
-        if (!cart.getProducts().containsKey(changeQuantityDto.getProductId())) {
-            throw new ProductNotFoundInCartException(String.format("Product %s not found fro user %s",
-                    changeQuantityDto.getProductId(),
-                    userName));
-        }
-        cart.getProducts().put(changeQuantityDto.getProductId(), changeQuantityDto.getNewQuantity());
-        validateCartInWarehouse(cart);
-        return cartMapper.modelToDto(saveCartTransaction(cart));
-    }
-
-    private boolean validateCartInWarehouse(ShoppingCart cart) {
-        CartDto cartDto = cartMapper.modelToDto(cart);
-        BookingCartDto bookingCartDto = warehouseClient.bookCart(cartDto);
-        return true;
-    }
-
-    private ShoppingCart getCart(String userName) {
-        ShoppingCart cart = cartRepository.findByUserName(userName);
-        if ((cart == null) || (cart.getProducts() == null) || (cart.getProducts().isEmpty())) {
-            throw new CartNotFoundException(String.format("Not found cart for user %s", userName));
-        }
-        return cart;
-    }
-
     @Transactional
-    protected ShoppingCart saveCartTransaction(ShoppingCart cart) {
-        return cartRepository.save(cart);
+    public CartDto changeQuantity(String userName, ChangeQuantityDto changeDto) {
+        ShoppingCart cart = getActiveCart(userName);
+        UUID productId = changeDto.getProductId();
+        Long newQuantity = changeDto.getNewQuantity();
+
+        if (!cart.getProducts().containsKey(productId)) {
+            throw new ProductNotFoundInCartException(
+                    String.format("Product %s not found for user %s", productId, userName)
+            );
+        }
+
+        if (newQuantity <= 0) {
+            cart.getProducts().remove(productId);
+        } else {
+            cart.getProducts().put(productId, newQuantity);
+        }
+
+        if (!cart.getProducts().isEmpty()) {
+            validateCartInWarehouse(cart);
+        }
+
+        ShoppingCart saved = cartRepository.save(cart);
+        return cartMapper.modelToDto(saved);
+    }
+
+    @Override
+    public CartDto getCartById(UUID cartId) {
+        return cartRepository.findById(cartId)
+                .map(cartMapper::modelToDto)
+                .orElseThrow(() -> new CartNotFoundException("Cart with id " + cartId + " not found"));
+    }
+
+
+    private void validateCartInWarehouse(ShoppingCart cart) {
+        CartDto cartDto = cartMapper.modelToDto(cart);
+        warehouseClient.bookCart(cartDto);
+    }
+
+    private ShoppingCart getActiveCart(String userName) {
+        return cartRepository.findByUserNameAndActivity(userName, true)
+                .orElseThrow(() -> new CartNotFoundException("Cart not found for user " + userName));
     }
 }

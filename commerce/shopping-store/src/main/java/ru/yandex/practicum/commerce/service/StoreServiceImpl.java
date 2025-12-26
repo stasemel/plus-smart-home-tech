@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.commerce.dto.product.ProductCategory;
-import ru.yandex.practicum.commerce.dto.product.ProductCreateDto;
+import ru.yandex.practicum.commerce.dto.product.ProductDto;
 import ru.yandex.practicum.commerce.dto.product.ProductPageDto;
 import ru.yandex.practicum.commerce.dto.product.ProductQuantityState;
 import ru.yandex.practicum.commerce.dto.product.ProductState;
@@ -36,15 +36,10 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     @Transactional
-    public ProductCreateDto createProduct(ProductCreateDto productCreateDto) {
-        Product product = storeMapper.dtoToModel(productCreateDto);
-        return storeMapper.modelToDto(saveProductTransaction(product));
+    public ProductDto createProduct(ProductDto productDto) {
+        Product product = storeMapper.dtoToModel(productDto);
+        return storeMapper.modelToDto(storeRepository.save(product));
 
-    }
-
-    @Transactional
-    protected Product saveProductTransaction(Product product) {
-        return storeRepository.save(product);
     }
 
     @Override
@@ -59,7 +54,7 @@ public class StoreServiceImpl implements StoreService {
             pageable = PageRequest.of(page, size);
         }
         Page<Product> pageProduct;
-        if (category != null) {
+        if (category == null) {
             pageProduct = storeRepository.findAll(pageable);
         } else {
             pageProduct = storeRepository.findAllByProductCategory(category, pageable);
@@ -94,32 +89,39 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ProductCreateDto findByProductId(UUID productId) {
+    public ProductDto findByProductId(UUID productId) {
         return storeMapper.modelToDto(findById(productId));
     }
 
     @Override
-    public ProductCreateDto updateProduct(ProductUpdateDto productUpdateDto) {
+    public ProductDto updateProduct(ProductUpdateDto productUpdateDto) {
         Product product = findById(productUpdateDto.getProductId());
         storeMapper.updateProductFromDto(productUpdateDto, product);
 
-        return storeMapper.modelToDto(saveProductTransaction(product));
+        return storeMapper.modelToDto(storeRepository.save(product));
     }
 
     @Override
+    @Transactional
     public boolean removeProduct(String id) {
         UUID productId = UUID.fromString(id.trim().replace("\"", ""));
         Product product = findById(productId);
         product.setProductState(ProductState.DEACTIVATE);
-        Product saved = saveProductTransaction(product);
+        Product saved = storeRepository.save(product);
         return saved.getProductState().equals(ProductState.DEACTIVATE);
     }
 
     @Override
-    public ProductCreateDto updateProductQuantityState(UUID productId, ProductQuantityState quantityState) {
+    public ProductDto updateProductQuantityState(UUID productId, ProductQuantityState quantityState) {
         Product product = findById(productId);
         product.setQuantityState(quantityState);
         return storeMapper.modelToDto(storeRepository.save(product));
+    }
+
+    @Override
+    public List<ProductDto> findProductsById(Collection<UUID> ids) {
+        List<Product> list = storeRepository.findAllById(ids);
+        return list.stream().map(storeMapper::modelToDto).toList();
     }
 
     private Product findById(UUID productId) {
@@ -133,7 +135,7 @@ public class StoreServiceImpl implements StoreService {
     private Sort.Direction getSortDirection(String[] parts) {
         Sort.Direction direction;
         String last = parts[parts.length - 1].trim().toUpperCase();
-        String desc="DESC";
+        String desc = "DESC";
         if (parts[parts.length - 1].trim().toUpperCase().equals(desc)) {
             direction = Sort.Direction.DESC;
         }

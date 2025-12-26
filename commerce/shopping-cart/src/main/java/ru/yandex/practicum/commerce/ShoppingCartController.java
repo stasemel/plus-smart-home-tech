@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,6 +35,14 @@ public class ShoppingCartController {
         log.info("Get cart for userName {}", userName);
         CartDto cartDto = cartService.getCartByUserName(userName);
         log.info("Found cart for userName {}: {}", userName, cartDto);
+        return cartDto;
+    }
+
+    @GetMapping("/{cartId}")
+    public CartDto getCartById(@PathVariable UUID cartId) {
+        log.info("Get cart by id cartId {}", cartId);
+        CartDto cartDto = cartService.getCartById(cartId);
+        log.info("Found cart by cartId {}: {}", cartId, cartDto);
         return cartDto;
     }
 

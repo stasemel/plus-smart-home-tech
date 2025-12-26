@@ -1,5 +1,7 @@
 package ru.yandex.practicum.commerce.dto.cart;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +22,10 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
 @ToString
 public class CartDto {
+    @NotNull
     UUID shoppingCartId;
-    Map<UUID, Integer> products;
+    @NotEmpty
+    Map<UUID, Long> products;
+
+    String userName;
 }

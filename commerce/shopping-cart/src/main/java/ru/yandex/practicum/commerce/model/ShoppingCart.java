@@ -35,9 +35,11 @@ public class ShoppingCart {
     @Column(name = "id", columnDefinition = "UUID")
     UUID shoppingCartId;
 
-    @Column(name = "user_name", nullable = false, unique = true)
+    @Column(name = "user_name", nullable = false)
     String userName;
 
+    @Column(name = "activity")
+    Boolean activity;
     @ElementCollection
     @CollectionTable(name = "shopping_cart_items",
             joinColumns = {@JoinColumn(name = "cart_id", referencedColumnName = "id")})

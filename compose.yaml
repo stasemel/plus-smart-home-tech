@@ -97,3 +97,49 @@ services:
       retries: 10
     ports:
       - "5435:5432"
+
+  postgres-order:
+    image: postgres:16.1
+    container_name: order
+    hostname: order
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: order
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+    ports:
+      - "5436:5432"
+  postgres-payment:
+    image: postgres:16.1
+    container_name: payment
+    hostname: payment
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: payment
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+    ports:
+      - "5437:5432"
+  postgres-delivery:
+    image: postgres:16.1
+    container_name: delivery
+    hostname: delivery
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: delivery
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+    ports:
+      - "5438:5432"

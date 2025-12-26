@@ -12,10 +12,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.commerce.dto.cart.CartDto;
 import ru.yandex.practicum.commerce.dto.warhouse.AddressDto;
+import ru.yandex.practicum.commerce.dto.warhouse.AssemblyOrderDto;
 import ru.yandex.practicum.commerce.dto.warhouse.BookingCartDto;
 import ru.yandex.practicum.commerce.dto.warhouse.ProductQuantityDto;
+import ru.yandex.practicum.commerce.dto.warhouse.ShippedDto;
 import ru.yandex.practicum.commerce.dto.warhouse.WarehouseDto;
 import ru.yandex.practicum.commerce.service.WarehouseService;
+
+import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/api/v1/warehouse")
@@ -47,11 +52,33 @@ public class WarehouseCollector {
         log.info("Add quantity {} done", productQuantityDto);
     }
 
+    @PostMapping("/shipped")
+    public void shippedToDelivery(@RequestBody @Valid ShippedDto shippedDto) {
+        log.info("Shipped order {}", shippedDto);
+        warehouseService.shippedOrder(shippedDto);
+        log.info("Shipped order {} done", shippedDto);
+    }
+
     @GetMapping("/address")
     public AddressDto getAddress() {
         log.info("Get address");
         AddressDto addressDto = warehouseService.getAddress();
         log.info("Address: {}", addressDto);
         return addressDto;
+    }
+
+    @PostMapping("/assembly")
+    public BookingCartDto assemblyProductForOrderFromShoppingCart(@RequestBody @Valid AssemblyOrderDto assemblyOrderDto) {
+        log.info("Assembly products from cart {}", assemblyOrderDto);
+        BookingCartDto bookingCartDto = warehouseService.assemblyOrder(assemblyOrderDto);
+        log.info("Assembled products from cart {}", assemblyOrderDto);
+        return bookingCartDto;
+    }
+
+    @PostMapping("/return")
+    public void returnProducts(@RequestBody Map<UUID, Long> returnedProducts) {
+        log.info("Return products {}", returnedProducts);
+        warehouseService.returnProducts(returnedProducts);
+        log.info("Return products {} done", returnedProducts);
     }
 }

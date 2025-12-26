@@ -7,16 +7,16 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.commerce.dto.product.ProductCreateDto;
+import ru.yandex.practicum.commerce.dto.product.ProductDto;
 import ru.yandex.practicum.commerce.dto.product.ProductUpdateDto;
 import ru.yandex.practicum.commerce.model.Product;
 
 @Component
 @Mapper(componentModel = "spring")
 public abstract class StoreMapper {
-    public abstract Product dtoToModel(ProductCreateDto productCreateDto);
+    public abstract Product dtoToModel(ProductDto productDto);
 
-    public abstract ProductCreateDto modelToDto(Product product);
+    public abstract ProductDto modelToDto(Product product);
 
     // Основной метод обновления
     public void updateProductFromDto(ProductUpdateDto dto, @MappingTarget Product product) {
